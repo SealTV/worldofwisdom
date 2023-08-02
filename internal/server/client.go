@@ -7,12 +7,14 @@ import (
 	"time"
 )
 
+// client is wrapper around client connection.
 type client struct {
 	rw   io.ReadWriter
 	msgs chan string
 	err  chan error
 }
 
+// NewClient creates a new client.
 func NewClient(rw io.ReadWriter) *client {
 	c := &client{
 		rw:   rw,
@@ -24,6 +26,7 @@ func NewClient(rw io.ReadWriter) *client {
 	return c
 }
 
+// ReadWithTimeout reads a message from the client with a timeout.
 func (c *client) ReadWithTimeout(ctx context.Context, timeout time.Duration) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
@@ -31,6 +34,7 @@ func (c *client) ReadWithTimeout(ctx context.Context, timeout time.Duration) (st
 	return c.Read(ctx)
 }
 
+// Read reads a message from the client.
 func (c *client) Read(ctx context.Context) (string, error) {
 	select {
 	case msg := <-c.msgs:
@@ -42,11 +46,13 @@ func (c *client) Read(ctx context.Context) (string, error) {
 	}
 }
 
+// Write writes a message to the client.
 func (c *client) Write(msg string) error {
 	_, err := c.rw.Write([]byte(msg))
 	return err
 }
 
+// run background reads messages from the client.
 func (c *client) run() {
 	defer close(c.msgs)
 	defer close(c.err)

@@ -12,6 +12,7 @@ func NewWisdomBook(quotes []string) *WisdomBook {
 	}
 }
 
+// GetRandomQuote returns a random quote from the wisdom book.
 func (wb *WisdomBook) GetRandomQuote() string {
 	return wb.quotes[rand.Intn(len(wb.quotes))]
 }

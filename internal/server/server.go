@@ -34,6 +34,7 @@ func (s *Server) Run(ctx context.Context) error {
 	// start accepting connections
 	go handleIncomingConnections(s.listener, conns, errs)
 
+	// wait for all connections to finish
 	wg := &sync.WaitGroup{}
 	defer wg.Wait()
 
@@ -43,6 +44,7 @@ func (s *Server) Run(ctx context.Context) error {
 		case conn := <-conns:
 			wg.Add(1)
 
+			// handle the connection
 			go func(conn net.Conn) {
 				defer wg.Done()
 				defer conn.Close()

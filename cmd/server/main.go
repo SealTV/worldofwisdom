@@ -12,7 +12,18 @@ import (
 	"github.com/sealtv/worldofwisdom/internal/pow"
 	"github.com/sealtv/worldofwisdom/internal/server"
 	"github.com/sealtv/worldofwisdom/internal/wisdombook"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
+
+func init() {
+	pflag.Int("port", 8080, "port to listen on")
+	pflag.Int("pow_difficulty", 5, "PoW difficulty")
+
+	pflag.Parse()
+	_ = viper.BindPFlags(pflag.CommandLine)
+	viper.AutomaticEnv()
+}
 
 func main() {
 	// create a context that is canceled when the process receives an interrupt signal
@@ -20,7 +31,7 @@ func main() {
 	defer cancel()
 
 	// create a listener
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", viper.GetInt("port")))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,9 +47,10 @@ func main() {
 	})
 
 	// create a new server
-	srv := server.New(listener, app.NewApp(pow.NewPoW(), book))
+	srv := server.New(listener, app.NewApp(pow.NewPoW(viper.GetInt("pow_difficulty")), book))
 
 	log.Println("starting server")
+
 	// run the server
 	if err := srv.Run(ctx); err != nil {
 		log.Fatal(err)

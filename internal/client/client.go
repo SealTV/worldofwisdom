@@ -2,6 +2,7 @@ package client
 
 import (
 	"net"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -40,7 +41,7 @@ func (c *Client) Receive() (string, error) {
 		return "", errors.Wrap(err, "failed to receive message")
 	}
 
-	return string(buf[:n]), nil
+	return strings.TrimSpace(string(buf[:n])), nil
 }
 
 func (c *Client) Send(msg string) error {

@@ -1,0 +1,22 @@
+services:
+  server:
+    image: server
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    environment:
+      - PORT=8080
+      - POW_DIFFICULTY=5
+    ports:
+      - "8080:8080"
+     
+  client:
+    image: client
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    environment:
+      - SERVER=server:8080
+      - POW_DIFFICULTY=5
+    depends_on:
+      - server

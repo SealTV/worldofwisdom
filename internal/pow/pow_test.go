@@ -28,7 +28,7 @@ func TestIsValidPoW(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := IsValidPoW(tt.hash, tt.difficulty); got != tt.want {
+			if got := isValidPoW(tt.hash, tt.difficulty); got != tt.want {
 				t.Errorf("IsValidPoW() = %v, want %v", got, tt.want)
 			}
 		})
@@ -49,7 +49,7 @@ func TestHashSHA256(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := HashSHA256(tt.input); got != tt.want {
+			if got := hashSHA256(tt.input); got != tt.want {
 				t.Errorf("HashSHA256() = %v, want %v", got, tt.want)
 			}
 		})
@@ -84,7 +84,7 @@ func TestProofOfWork(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), tt.timeout)
 			defer cancel()
 
-			_, err := ProofOfWork(ctx, tt.challenge, tt.difficulty)
+			_, err := proofOfWork(ctx, tt.challenge, tt.difficulty)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ProofOfWork() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -10,25 +10,30 @@ import (
 	"time"
 )
 
-const POW_DIFFICULTY = 3
+type PoW struct {
+	difficulty int
+}
 
-type PoW struct{}
-
-func NewPoW() *PoW {
-	return &PoW{}
+func NewPoW(difficulty int) *PoW {
+	return &PoW{
+		difficulty: difficulty,
+	}
 }
 
 func (p *PoW) GetChallenge() string {
-	return GetChallenge()
+	return getChallenge()
 }
 
 func (p *PoW) IsValid(input string) bool {
-	hash := HashSHA256(input)
-	return IsValidPoW(hash, POW_DIFFICULTY)
+	hash := hashSHA256(input)
+	return isValidPoW(hash, p.difficulty)
+}
+func (p *PoW) ProofOfWork(ctx context.Context, challenge string) (string, error) {
+	return proofOfWork(ctx, challenge, p.difficulty)
 }
 
 // Proof of Work (PoW) function using SHA-256 as the hashing algorithm.
-func ProofOfWork(ctx context.Context, challenge string, difficulty int) (string, error) {
+func proofOfWork(ctx context.Context, challenge string, difficulty int) (string, error) {
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	result := make(chan string)
@@ -40,25 +45,25 @@ func ProofOfWork(ctx context.Context, challenge string, difficulty int) (string,
 			return "", fmt.Errorf("timeout")
 		default:
 			nonce := strconv.Itoa(random.Int()) // Generate a random nonce
-			hash := HashSHA256(challenge + nonce)
+			hash := hashSHA256(challenge + nonce)
 
-			if IsValidPoW(hash, difficulty) {
+			if isValidPoW(hash, difficulty) {
 				return nonce, nil
 			}
 		}
 	}
 }
 
-func GetChallenge() string {
+func getChallenge() string {
 	return strconv.Itoa(rand.Int())
 }
 
 // Simple SHA-256 hashing function
-func HashSHA256(input string) string {
+func hashSHA256(input string) string {
 	return fmt.Sprintf("%x", sha256.Sum256([]byte(input)))
 }
 
 // Validate if the hash has the required number of leading zeros.
-func IsValidPoW(hash string, difficulty int) bool {
+func isValidPoW(hash string, difficulty int) bool {
 	return strings.HasPrefix(hash, strings.Repeat("0", difficulty))
 }
